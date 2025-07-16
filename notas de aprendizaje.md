@@ -53,6 +53,42 @@ Todos los barcos de "tal tipo, van a llegar pa cá"
 
 Proveedor = Cliente
 Almacén = Servidor
-Producto = Servicio (el mensaje del cliente)
+Producto = Servicio (el mensaje del cliente).
 Barco = Socket
 Puerto = El puerto: el número específico donde el servidor escucha (ej: 80, 443). La parte del servidor a la que el mensaje llegará.
+
+
+# Thread (hilo):
+
+Es como un subproceso dentro de un programa, que permite que tu código haga varias cosas al mismo tiempo (o al menos, que lo parezca).
+
+En la práctica:
+
+Normalmente, tu programa en Python hace una cosa a la vez:
+
+    1. Espera input
+
+    2. Ejecuta algo
+
+    3. Espera la siguiente cosa...
+
+Pero si querés que el servidor maneje a varios clientes al mismo tiempo, no podés permitir que se quede esperando a que un solo cliente termine de hablar.
+
+Ahí es donde entran los Threads.
+
+
+¿Por qué decimos "parece"?
+
+Porque en realidad:
+
+    Python (por dentro) no ejecuta múltiples líneas exactamente al mismo tiempo, a menos que uses procesos o múltiples núcleos.
+
+    Pero lo que hace Thread es intercalar rápidamente las instrucciones de cada hilo. Tan rápido que parece que todo pasa al mismo tiempo.
+
+💡 Para tí como programador, sí: puedes escribir código que responde a varios eventos al mismo tiempo, como:
+
+    recibir mensajes de 5 clientes distintos,
+
+    imprimir cosas mientras escuchás conexiones,
+
+    enviar mensajes sin bloquear nada.
