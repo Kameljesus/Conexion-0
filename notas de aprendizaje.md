@@ -92,3 +92,7 @@ Porque en realidad:
     imprimir cosas mientras escuchás conexiones,
 
     enviar mensajes sin bloquear nada.
+
+# Host:
+
+
