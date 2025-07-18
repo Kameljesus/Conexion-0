@@ -2,85 +2,80 @@ import socket
 import threading
 import sys
 
-# Creamos un objeto socket:
-client_socker = socket.socket()
-# Establecemos la conexión (IP y puerto del servidor):
-client_socker.connect(('localhost', 8000))
+# Crear socket e intentar conectar
+client_socket = socket.socket()
+try:
+    client_socket.connect(('localhost', 8000))
+except ConnectionRefusedError:
+    print("No se pudo conectar a ningún servidor. El servidor no debe estar abierto.")
+    sys.exit()
 
-# Nombre del usuario:
-print("")
+# Pedir nombre
+print()
 nombre_del_cliente = input("Elige tu nombre para este servidor: ")
-print("")
-client_socker.send(nombre_del_cliente.encode())
+print()
 
-# Lock para sincronizar el acceso a nombre_del_cliente
-nombre_lock = threading.Lock()
+client_socket.send(nombre_del_cliente.encode())
 
-# === HILO RECEPTOR: escucha todo lo que venga del servidor ===
+
+# Hilo de Recepción:
+# Función para recibir mensajes del servidor:
 def recibir_mensajes():
-    global nombre_del_cliente
     while True:
         try:
-            mensaje = client_socker.recv(1024).decode()
-            
-            if mensaje == "Mensaje recibido (visto por el servidor).":
-                # Borra línea de input anterior y muestra solo "Visto"
-                sys.stdout.write('\r\033[K')  # Borra línea actual
-                sys.stdout.flush() # Para que el cursor de la consola aparezca inmediatamente. Borra de la memoria el mensaje anterior.
-                print("Visto\n")
+            mensaje_del_servidor = client_socket.recv(1024).decode()
+
+            if not mensaje_del_servidor:  # Servidor cerrado
+                print("El servidor fue cerrado repentinamente. Ya no se puede enviar más mensajes")
+                client_socket.close()
+                sys.exit()
+
+            if mensaje_del_servidor == "Mensaje recibido...":
                 print("Visto")
-                print(f"{nombre_del_cliente}: ", end="", flush=True)
+                print()
             
             else:
-                sys.stdout.write('\r\033[K')
-                sys.stdout.flush()
-                print(mensaje)
+                print(mensaje_del_servidor)
                 print()
-                print(f"{nombre_del_cliente}: ", end="", flush=True)
         
-        except:
-            print("\nConexión cerrada por el servidor.")
-            break  
-
+        except ConnectionResetError:
+            # Error de conexión - servidor cerrado
+            print("El servidor fue cerrado repentinamente. Ya no se puede enviar más mensajes")
+            client_socket.close()
+            sys.exit()
 
 # Lanzamos el hilo que escucha los mensajes entrantes
 hilo_receptor = threading.Thread(target=recibir_mensajes, daemon=True)
 hilo_receptor.start()
 
+
 # === HILO PRINCIPAL: envía mensajes ===
 print("Conectado al servidor. Escribe un mensaje (o '/exit' para salir):")
 
 # Bucle infinito para enviar mensajes:
+# Hilo de Emisión:
+# Función para mandar mensajes al servidor
 while True:
-    with nombre_lock:
-        mensaje = input(f"{nombre_del_cliente}: ")
+    try:
+        mensaje = input()
+        
+        if mensaje.lower() == "/exit":
+            print("Desconectando del servidor...")
+            client_socket.close()
+            sys.exit()
 
-    if mensaje.lower() == '/exit':
-        print("Desconectando del servidor...")
+        else:
+            # Borrar la línea del input y mostrar el mensaje formateado
+            print(f"\033[1A\033[2K{nombre_del_cliente}: {mensaje}")
+            print("Enviado")
+            client_socket.send(mensaje.encode())
+    
+    except ConnectionResetError:
+        client_socket.close()
+        # El servidor se desconectó:
         break
 
-    elif mensaje.lower() == '/help':
-        ayuda = """
-Comandos disponibles:
-/new_name_       -> Cambiar tu nombre
-/users_          -> Ver usuarios conectados
-/exit            -> Salir del servidor
-"""
-        print(ayuda)
-
-    elif mensaje.lower() == '/new_name_':                     
-        client_socker.send(mensaje.encode()) # Manda '/nombre_nuevo'.
-        print(client_socker.recv(1024).decode())  # Mostrar "Elija su nombre nuevo..."
-        cambio_de_nombre = input('')
-        client_socker.send(cambio_de_nombre.encode())
-        print(client_socker.recv(1024).decode())  # Mostrar confirmación
-        nombre_del_cliente = cambio_de_nombre
-    
-    else:   
-      # Enviamos el mensaje al servidor:
-        client_socker.send(mensaje.encode())
-        print("Enviado")  
-
-
-# Cerramos la conexión
-client_socker.close()
+    except OSError:
+        print("El servidor fue cerrado repentinamente. Ya no se puede enviar más mensajes")
+        client_socket.close()
+        break
