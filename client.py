@@ -15,7 +15,7 @@ print()
 nombre_del_cliente = input("Elige tu nombre para este servidor: ")
 print()
 
-client_socket.send(nombre_del_cliente.encode())
+client_socket.send(nombre_del_cliente.encode("utf-8"))
 
 
 # Hilo de Recepción:
@@ -23,7 +23,7 @@ client_socket.send(nombre_del_cliente.encode())
 def recibir_mensajes():
     while True:
         try:
-            mensaje_del_servidor = client_socket.recv(1024).decode()
+            mensaje_del_servidor = client_socket.recv(1024).decode("utf-8")
 
             if not mensaje_del_servidor:  # Servidor cerrado
                 print("El servidor fue cerrado repentinamente. Ya no se puede enviar más mensajes")
@@ -60,6 +60,7 @@ while True:
         mensaje = input()
         
         if mensaje.lower() == "/exit":
+            client_socket.send(mensaje.encode("utf-8"))
             print("Desconectando del servidor...")
             client_socket.close()
             sys.exit()
@@ -68,7 +69,7 @@ while True:
             # Borrar la línea del input y mostrar el mensaje formateado
             print(f"\033[1A\033[2K{nombre_del_cliente}: {mensaje}")
             print("Enviado")
-            client_socket.send(mensaje.encode())
+            client_socket.send(mensaje.encode("utf-8"))
     
     except ConnectionResetError:
         client_socket.close()

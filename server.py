@@ -8,7 +8,7 @@ def enviar_a_todos(mensaje, cliente_que_envio):
     for nombre, conexion in lista_de_clientes:
         if conexion != cliente_que_envio:  # No enviar al que escribió
             try:
-                conexion.send(mensaje.encode())
+                conexion.send(mensaje.encode("utf-8"))
             except:
                 # Si hay error, remover cliente de la lista
                 lista_de_clientes.remove((nombre, conexion))
@@ -29,7 +29,7 @@ server_socket.listen(5)
 # Esta función se ejecutará en un hilo diferente para cada cliente:
 def manejar_cliente(conexion, addr):
     global lista_de_clientes
-    nombre_del_cliente = conexion.recv(1024).decode()
+    nombre_del_cliente = conexion.recv(1024).decode("utf-8")
     lista_de_clientes.append((nombre_del_cliente, conexion))
     print()
     print("Nueva Conexión establecida:")
@@ -38,7 +38,7 @@ def manejar_cliente(conexion, addr):
     
     while True:
         try:
-            mensaje_del_cliente = conexion.recv(1024).decode() 
+            mensaje_del_cliente = conexion.recv(1024).decode("utf-8") 
 
             # Cliente se desconectó (Desconexión normal/abrupta):
             if not mensaje_del_cliente:
@@ -70,7 +70,7 @@ def manejar_cliente(conexion, addr):
                     mensaje_completo = f"{nombre_del_cliente}: {mensaje_del_cliente}"
                     enviar_a_todos(mensaje_completo, conexion)
                     # Confirmar al que envió
-                    conexion.send("Mensaje recibido...".encode())
+                    conexion.send("Mensaje recibido...".encode("utf-8"))
         
         # Si algo le falló al cliente, para qué seguirá en línea?
         except ConnectionResetError:
@@ -92,6 +92,7 @@ while True:
     try:
         conexion, addr = server_socket.accept()
         # Crear un hilo para manejar cada cliente
+        
         hilo_cliente = threading.Thread(target=manejar_cliente, args=(conexion, addr))
         hilo_cliente.start()
     
