@@ -48,11 +48,11 @@ El sistema está compuesto por dos programas:
 
 ## 📂 Estructura del proyecto
 
-Conexion-0/
-│
-├── server.py # Servidor que maneja múltiples clientes
-├── client.py # Cliente que se conecta y envía mensajes
-└── notas_de_aprendizaje.md # Apuntes y conceptos teóricos del proyecto
+Estructura simplificada del repositorio:
+
+- `server.py` — Servidor que maneja múltiples clientes
+- `client.py` — Cliente que se conecta y envía mensajes
+- `notas_de_aprendizaje.md` — Apuntes y conceptos teóricos del proyecto
 
 ---
 
