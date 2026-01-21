@@ -66,11 +66,16 @@ Conexion-0/
 1. Clonar el repositorio:
    ```bash
    git clone https://github.com/Kameljesus/Conexion-0.git
+   ```
    
 2. Iniciar el servidor:
+  ```bash
   python server.py
+  ```
 
 3. En otra terminal, iniciar uno o más clientes:
+  ```bash
   python client.py
+  ```
 
 4. Escribir mensajes desde cada cliente para ver la comunicación en tiempo real.
